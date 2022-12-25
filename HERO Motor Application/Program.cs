@@ -15,6 +15,11 @@ namespace HERO_Motor_Application
         static TalonSRX backRightMotor = new TalonSRX(14);
         public static void Main()
         {
+            //Init motor controllers with default settings
+            frontLeftMotor.ConfigFactoryDefault();
+            frontRightMotor.ConfigFactoryDefault();
+            backLeftMotor.ConfigFactoryDefault();
+            backLeftMotor.ConfigFactoryDefault();
 
             /* loop forever */
             while (true)
