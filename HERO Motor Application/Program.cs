@@ -91,7 +91,7 @@ namespace HERO_Motor_Application
 
 
             // Get Buttons
-            xButton = controller.GetButton(0);
+            xButton = controller.GetButton(4); // TODO - found out button mapping. 0 is not valid for X.
             yButton = controller.GetButton(2);
             aButton = controller.GetButton(1);
             bButton = controller.GetButton(3);
