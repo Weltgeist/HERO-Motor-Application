@@ -73,6 +73,9 @@ namespace HERO_Motor_Application
             }
         }
 
+        /**
+         *  Gets the raw inputs of the controller.
+         */
         static void getCtrlInputs()
         {
              x = controller.GetAxis(0);
@@ -82,6 +85,9 @@ namespace HERO_Motor_Application
 
         }
 
+        /**
+         * send cmd to motors and drives robot
+         */
         static void drive()
         {
 
