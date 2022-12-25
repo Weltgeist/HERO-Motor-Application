@@ -20,9 +20,14 @@ namespace HERO_Motor_Application
 
         // Controller Inputs
 
-        static float x;
-        static float y;
-        static float twist;
+        static float leftJoystickX;
+        static float leftJoystickY;
+        static float rightJoystickX;
+        static float rightJoystickY;
+        static bool xButton;
+        static bool yButton;
+        static bool aButton;
+        static bool bButton;
 
 
         //
@@ -43,7 +48,7 @@ namespace HERO_Motor_Application
                 // get new controller inputs
                 getCtrlInputs();
                 // Drive/ Send Cmd to motors
-                drive();
+                tankDrive();
 
                 /* feed watchdog to keep Talon's enabled */
                 CTRE.Phoenix.Watchdog.Feed();
@@ -78,9 +83,18 @@ namespace HERO_Motor_Application
          */
         static void getCtrlInputs()
         {
-             x = controller.GetAxis(0);
-             y = -1 * controller.GetAxis(1);
-             twist = controller.GetAxis(2);
+            // Get Joysticks
+             leftJoystickX = controller.GetAxis(0); //X
+             leftJoystickY = -1 * controller.GetAxis(1); //Y
+             rightJoystickX = controller.GetAxis(2); // Twist
+             rightJoystickY = -1 * controller.GetAxis(3);
+
+
+            // Get Buttons
+            xButton = controller.GetButton(0);
+            yButton = controller.GetButton(2);
+            aButton = controller.GetButton(1);
+            bButton = controller.GetButton(3);
 
 
         }
@@ -91,11 +105,30 @@ namespace HERO_Motor_Application
         static void drive()
         {
 
-            Deadband(ref x);
+            Deadband(ref leftJoystickX);
 
-            float motorCmd = x;
+            float motorCmd = leftJoystickX;
 
             frontLeftMotor.Set(ControlMode.PercentOutput, motorCmd);
+
+        }
+
+        static void tankDrive()
+        {
+            Deadband(ref leftJoystickY);
+            Deadband(ref rightJoystickY);
+
+            float leftSpeed = leftJoystickY;
+            float rightSpeed = rightJoystickY;
+
+            frontLeftMotor.Set(ControlMode.PercentOutput, leftJoystickY);
+            frontRightMotor.Set(ControlMode.PercentOutput, rightJoystickY);
+
+
+        }
+
+        static void arcadeDrive()
+        {
 
         }
 
