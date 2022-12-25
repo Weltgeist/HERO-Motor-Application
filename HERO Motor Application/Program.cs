@@ -32,7 +32,7 @@ namespace HERO_Motor_Application
             {
 
                 /* wait a bit */
-                System.Threading.Thread.Sleep(100);
+                System.Threading.Thread.Sleep(20);
             }
         }
 
