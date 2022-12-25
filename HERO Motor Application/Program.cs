@@ -29,5 +29,27 @@ namespace HERO_Motor_Application
                 System.Threading.Thread.Sleep(100);
             }
         }
+
+        /**
+         * If value is within 10% of center, clear it.
+         * @param value [out] floating point value to deadband.
+         */
+        static void Deadband(ref float value)
+        {
+            if (value < -0.10)
+            {
+                /* outside of deadband */
+            }
+            else if (value > +0.10)
+            {
+                /* outside of deadband */
+            }
+            else
+            {
+                /* within 10% so zero it */
+                value = 0;
+            }
+        }
+
     }
 }
