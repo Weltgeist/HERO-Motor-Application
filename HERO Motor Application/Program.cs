@@ -84,17 +84,17 @@ namespace HERO_Motor_Application
         static void getCtrlInputs()
         {
             // Get Joysticks
-             leftJoystickX = controller.GetAxis(0); //X
+             leftJoystickX = controller.GetAxis(4); //X  // TODO - found out button mapping issue, got to find right mapping of axis for specific joysitick. 
              leftJoystickY = -1 * controller.GetAxis(1); //Y
              rightJoystickX = controller.GetAxis(2); // Twist
-             rightJoystickY = -1 * controller.GetAxis(3);
-
+             rightJoystickY = -1 * controller.GetAxis(0);  // TODO - found out button mapping issue, got to find right mapping of axis for specific joysitick. 
+            
 
             // Get Buttons
-            xButton = controller.GetButton(4); // TODO - found out button mapping. 0 is not valid for X.
-            yButton = controller.GetButton(2);
-            aButton = controller.GetButton(1);
-            bButton = controller.GetButton(3);
+            //xButton = controller.GetButton(4); // TODO - found out button mapping. 0 is not valid for X.
+            //yButton = controller.GetButton(2);
+            //aButton = controller.GetButton(1);
+            //bButton = controller.GetButton(3);
 
 
         }
