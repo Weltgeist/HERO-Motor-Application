@@ -121,8 +121,8 @@ namespace HERO_Motor_Application
             float leftSpeed = leftJoystickY;
             float rightSpeed = rightJoystickY;
 
-            frontLeftMotor.Set(ControlMode.PercentOutput, leftJoystickY);
-            frontRightMotor.Set(ControlMode.PercentOutput, rightJoystickY);
+            frontLeftMotor.Set(ControlMode.PercentOutput, leftSpeed);
+            frontRightMotor.Set(ControlMode.PercentOutput, rightSpeed);
 
 
         }
