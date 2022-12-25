@@ -1,5 +1,6 @@
 ﻿using CTRE.Phoenix;
 using CTRE.Phoenix.Controller;
+using CTRE.Phoenix.MotorControl;
 using CTRE.Phoenix.MotorControl.CAN;
 
 using Microsoft.SPOT;
@@ -17,6 +18,15 @@ namespace HERO_Motor_Application
         static TalonSRX backLeftMotor = new TalonSRX(13);
         static TalonSRX backRightMotor = new TalonSRX(14);
 
+        // Controller Inputs
+
+        static float x;
+        static float y;
+        static float twist;
+
+
+        //
+
         // Create Xbox Controller
         static CTRE.Phoenix.Controller.GameController controller = new GameController(UsbHostDevice.GetInstance());
         public static void Main()
@@ -30,7 +40,13 @@ namespace HERO_Motor_Application
             /* loop forever */
             while (true)
             {
+                // get new controller inputs
+                getCtrlInputs();
+                // Drive/ Send Cmd to motors
+                drive();
 
+                /* feed watchdog to keep Talon's enabled */
+                CTRE.Phoenix.Watchdog.Feed();
                 /* wait a bit */
                 System.Threading.Thread.Sleep(20);
             }
@@ -55,6 +71,26 @@ namespace HERO_Motor_Application
                 /* within 10% so zero it */
                 value = 0;
             }
+        }
+
+        static void getCtrlInputs()
+        {
+             x = controller.GetAxis(0);
+             y = -1 * controller.GetAxis(1);
+             twist = controller.GetAxis(2);
+
+
+        }
+
+        static void drive()
+        {
+
+            Deadband(ref x);
+
+            float motorCmd = x;
+
+            frontLeftMotor.Set(ControlMode.PercentOutput, motorCmd);
+
         }
 
     }
