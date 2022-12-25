@@ -1,4 +1,7 @@
-﻿using CTRE.Phoenix.MotorControl.CAN;
+﻿using CTRE.Phoenix;
+using CTRE.Phoenix.Controller;
+using CTRE.Phoenix.MotorControl.CAN;
+
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using System;
@@ -13,6 +16,9 @@ namespace HERO_Motor_Application
         static TalonSRX frontRightMotor = new TalonSRX(12);
         static TalonSRX backLeftMotor = new TalonSRX(13);
         static TalonSRX backRightMotor = new TalonSRX(14);
+
+        // Create Xbox Controller
+        static CTRE.Phoenix.Controller.GameController controller = new GameController(UsbHostDevice.GetInstance());
         public static void Main()
         {
             //Init motor controllers with default settings
