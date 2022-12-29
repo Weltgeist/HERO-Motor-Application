@@ -2,6 +2,7 @@
 using CTRE.Phoenix.Controller;
 using CTRE.Phoenix.MotorControl;
 using CTRE.Phoenix.MotorControl.CAN;
+using HERO_Motor_Application.Extended;
 
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
@@ -13,10 +14,10 @@ namespace HERO_Motor_Application
     public class Program
     {
         // Create Drive Train Talons
-        static TalonSRX frontLeftMotor = new TalonSRX(11);
-        static TalonSRX frontRightMotor = new TalonSRX(12);
-        static TalonSRX backLeftMotor = new TalonSRX(13);
-        static TalonSRX backRightMotor = new TalonSRX(14);
+        static TalonSRX frontLeftMotor = new TalonSRX(Constants.frontLeftMotorID);
+        static TalonSRX frontRightMotor = new TalonSRX(Constants.frontRightMotorID);
+        static TalonSRX backLeftMotor = new TalonSRX(Constants.backLeftMotorID);
+        static TalonSRX backRightMotor = new TalonSRX(Constants.backRightMotorID);
 
         // Controller Inputs
 
@@ -30,12 +31,14 @@ namespace HERO_Motor_Application
         static bool bButton;
 
 
-        //
-
         // Create Xbox Controller
-        static CTRE.Phoenix.Controller.GameController controller = new GameController(UsbHostDevice.GetInstance());
+        //static Xbox360Gamepad controller = new Xbox360Gamepad(UsbHostDevice.GetInstance(1),0);
+        static GameController controller = new GameController(UsbHostDevice.GetInstance());
+
         public static void Main()
         {
+            // Setting as a Xinput Device.
+            //UsbHostDevice.GetInstance(0).SetSelectableXInputFilter(UsbHostDevice.SelectableXInputFilter.XInputDevices);
             //Init motor controllers with default settings
             frontLeftMotor.ConfigFactoryDefault();
             frontRightMotor.ConfigFactoryDefault();
@@ -84,18 +87,19 @@ namespace HERO_Motor_Application
         static void getCtrlInputs()
         {
             // Get Joysticks
-             leftJoystickX = controller.GetAxis(4); //X  // TODO - found out button mapping issue, got to find right mapping of axis for specific joysitick. 
-             leftJoystickY = -1 * controller.GetAxis(1); //Y
-             rightJoystickX = controller.GetAxis(2); // Twist
-             rightJoystickY = -1 * controller.GetAxis(0);  // TODO - found out button mapping issue, got to find right mapping of axis for specific joysitick. 
+            leftJoystickX = controller.GetAxis(LogictechMapping.leftJoystickX); 
+            leftJoystickY = -1 * controller.GetAxis(LogictechMapping.leftJoystickY); 
+            rightJoystickX = controller.GetAxis(LogictechMapping.rightJoystickX); 
+            rightJoystickY = -1 * controller.GetAxis(LogictechMapping.rightJoystickY);  
             
-
+            
             // Get Buttons
-            //xButton = controller.GetButton(4); // TODO - found out button mapping. 0 is not valid for X.
-            //yButton = controller.GetButton(2);
-            //aButton = controller.GetButton(1);
-            //bButton = controller.GetButton(3);
+            xButton = controller.GetButton(LogictechMapping.e1Button); 
+            yButton = controller.GetButton(LogictechMapping.e4Button);
+            aButton = controller.GetButton(LogictechMapping.e2Button);
+            bButton = controller.GetButton(LogictechMapping.e3Button);
 
+            //printCtrl(); 
 
         }
 
@@ -106,24 +110,26 @@ namespace HERO_Motor_Application
         {
 
             Deadband(ref leftJoystickX);
-
+            
             float motorCmd = leftJoystickX;
-
+            
             frontLeftMotor.Set(ControlMode.PercentOutput, motorCmd);
 
         }
 
         static void tankDrive()
         {
-            Deadband(ref leftJoystickY);
-            Deadband(ref rightJoystickY);
-
-            float leftSpeed = leftJoystickY;
-            float rightSpeed = rightJoystickY;
-
-            frontLeftMotor.Set(ControlMode.PercentOutput, leftSpeed);
-            frontRightMotor.Set(ControlMode.PercentOutput, rightSpeed);
-
+           Deadband(ref leftJoystickY);
+           Deadband(ref rightJoystickY);
+           
+           float leftSpeed = leftJoystickY;
+           float rightSpeed = rightJoystickY;
+           
+           frontLeftMotor.Set(ControlMode.PercentOutput, leftSpeed);
+           frontRightMotor.Set(ControlMode.PercentOutput, rightSpeed);
+           Debug.Print("Left Speed: " + leftSpeed.ToString());
+           Debug.Print("Right Speed: " + rightSpeed.ToString());
+           
 
         }
 
@@ -132,5 +138,25 @@ namespace HERO_Motor_Application
 
         }
 
+        static void printCtrl()
+        {
+
+            Debug.Print("Test Connection:"+ (controller.GetConnectionStatus() == UsbDeviceConnection.Connected).ToString());
+
+            for (uint i = 0; i < 11; i++)
+            {
+                Debug.Print("Axis #" + i.ToString() + ":" + controller.GetAxis(i).ToString());
+            }
+            
+            for (uint i = 1; i < 21; i++)
+            {
+                Debug.Print("Button #" + i.ToString() + ":" + controller.GetButton(i).ToString());
+            }
+        }
+
+
+
     }
+
+
 }
