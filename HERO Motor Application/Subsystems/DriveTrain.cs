@@ -78,6 +78,14 @@ namespace HERO_Motor_Application.Subsystems
         {
 
         }
+        /// <summary>
+        /// Stop all motors
+        /// </summary>
+        public void stopMotors()
+        {
+            frontLeftMotor.Set(ControlMode.PercentOutput, 0);
+            frontRightMotor.Set(ControlMode.PercentOutput, 0);
+        }
 
     }
 }

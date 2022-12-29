@@ -1,33 +1,47 @@
 using CTRE.Phoenix;
+using CTRE.Phoenix.Controller;
 using CTRE.Phoenix.Tasking;
+using HERO_Motor_Application.Extended;
+using HERO_Motor_Application.Subsystems;
 
 namespace HERO_Motor_Application.Commands
 {
     public class DriveWithController : IProcessable, ILoopable
     {
+        DriveTrain driveTrain;
+        GameController controller;
+        public DriveWithController(DriveTrain dt, GameController cont)
+        {
+            driveTrain = dt;
+            controller = cont;
+
+        }
+
         public bool IsDone()
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
         public void OnLoop()
         {
-            throw new System.NotImplementedException();
+            Process();
         }
 
         public void OnStart()
         {
-            throw new System.NotImplementedException();
+           
         }
 
         public void OnStop()
         {
-            throw new System.NotImplementedException();
+            driveTrain.stopMotors();
         }
 
         public void Process()
         {
-
+            float leftJoystickY = -1 * controller.GetAxis(LogictechMapping.leftJoystickY);
+            float rightJoystickY = -1 * controller.GetAxis(LogictechMapping.rightJoystickY);
+            driveTrain.tankDrive(leftJoystickY, rightJoystickY);
         }
     }
 }
