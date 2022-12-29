@@ -2,6 +2,7 @@
 using CTRE.Phoenix.Controller;
 using CTRE.Phoenix.MotorControl;
 using CTRE.Phoenix.MotorControl.CAN;
+using CTRE.Phoenix.Tasking;
 using HERO_Motor_Application.Extended;
 
 using Microsoft.SPOT;
@@ -35,6 +36,8 @@ namespace HERO_Motor_Application
         //static Xbox360Gamepad controller = new Xbox360Gamepad(UsbHostDevice.GetInstance(1),0);
         static GameController controller = new GameController(UsbHostDevice.GetInstance());
 
+        static ButtonMonitor xButtonM;
+
         public static void Main()
         {
             // Setting as a Xinput Device.
@@ -45,21 +48,25 @@ namespace HERO_Motor_Application
             backLeftMotor.ConfigFactoryDefault();
             backLeftMotor.ConfigFactoryDefault();
 
+            xButtonM = new ButtonMonitor(controller, 1, (idx,isDown) => driveMotor(idx, isDown));
+
             /* loop forever */
             while (true)
             {
                 // get new controller inputs
                 getCtrlInputs();
-                if( xButton == true)
-                {
-                    backLeftMotor.Set(ControlMode.PercentOutput,0.5);
-                }
-                else 
-                {
 
-                    backLeftMotor.Set(ControlMode.PercentOutput, 0);
-                }
-                
+                xButtonM.ButtonPress(1, controller.GetButton(LogictechMapping.e1Button));
+                //if( xButton == true)
+                //{
+                //    backLeftMotor.Set(ControlMode.PercentOutput,0.5);
+                //}
+                //else 
+                //{
+                //
+                //    backLeftMotor.Set(ControlMode.PercentOutput, 0);
+                //}
+
                 // Drive/ Send Cmd to motors
                 tankDrive();
 
@@ -137,8 +144,8 @@ namespace HERO_Motor_Application
            
            frontLeftMotor.Set(ControlMode.PercentOutput, leftSpeed);
            frontRightMotor.Set(ControlMode.PercentOutput, rightSpeed);
-           Debug.Print("Left Speed: " + leftSpeed.ToString());
-           Debug.Print("Right Speed: " + rightSpeed.ToString());
+           //Debug.Print("Left Speed: " + leftSpeed.ToString());
+           //Debug.Print("Right Speed: " + rightSpeed.ToString());
            
 
         }
@@ -161,6 +168,20 @@ namespace HERO_Motor_Application
             for (uint i = 1; i < 21; i++)
             {
                 Debug.Print("Button #" + i.ToString() + ":" + controller.GetButton(i).ToString());
+            }
+        }
+
+        static void driveMotor( int idx,bool xButton)
+        {
+            Debug.Print("GOES IN");
+            if (xButton == true)
+            {
+                backLeftMotor.Set(ControlMode.PercentOutput, 0.5);
+            }
+            else
+            {
+
+                backLeftMotor.Set(ControlMode.PercentOutput, 0);
             }
         }
 
