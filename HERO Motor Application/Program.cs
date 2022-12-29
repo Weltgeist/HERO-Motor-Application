@@ -4,7 +4,7 @@ using CTRE.Phoenix.MotorControl;
 using CTRE.Phoenix.MotorControl.CAN;
 using CTRE.Phoenix.Tasking;
 using HERO_Motor_Application.Extended;
-
+using HERO_Motor_Application.Subsystems;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using System;
@@ -14,11 +14,7 @@ namespace HERO_Motor_Application
 {
     public class Program
     {
-        // Create Drive Train Talons
-        static TalonSRX frontLeftMotor = new TalonSRX(Constants.frontLeftMotorID);
-        static TalonSRX frontRightMotor = new TalonSRX(Constants.frontRightMotorID);
-        static TalonSRX backLeftMotor = new TalonSRX(Constants.backLeftMotorID);
-        static TalonSRX backRightMotor = new TalonSRX(Constants.backRightMotorID);
+
 
         // Controller Inputs
 
@@ -35,20 +31,22 @@ namespace HERO_Motor_Application
         // Create Xbox Controller
         //static Xbox360Gamepad controller = new Xbox360Gamepad(UsbHostDevice.GetInstance(1),0);
         static GameController controller = new GameController(UsbHostDevice.GetInstance());
-
         static ButtonMonitor xButtonM;
+
+        // Subsystems
+
+        static DriveTrain driveTrain;
 
         public static void Main()
         {
             // Setting as a Xinput Device.
             //UsbHostDevice.GetInstance(0).SetSelectableXInputFilter(UsbHostDevice.SelectableXInputFilter.XInputDevices);
-            //Init motor controllers with default settings
-            frontLeftMotor.ConfigFactoryDefault();
-            frontRightMotor.ConfigFactoryDefault();
-            backLeftMotor.ConfigFactoryDefault();
-            backLeftMotor.ConfigFactoryDefault();
+
 
             xButtonM = new ButtonMonitor(controller, 1, (idx,isDown) => driveMotor(idx, isDown));
+
+            // Subsystems
+            driveTrain = new DriveTrain();
 
             /* loop forever */
             while (true)
@@ -57,18 +55,9 @@ namespace HERO_Motor_Application
                 getCtrlInputs();
 
                 xButtonM.ButtonPress(1, controller.GetButton(LogictechMapping.e1Button));
-                //if( xButton == true)
-                //{
-                //    backLeftMotor.Set(ControlMode.PercentOutput,0.5);
-                //}
-                //else 
-                //{
-                //
-                //    backLeftMotor.Set(ControlMode.PercentOutput, 0);
-                //}
 
                 // Drive/ Send Cmd to motors
-                tankDrive();
+                driveTrain.tankDrive(leftJoystickY,rightJoystickY);
 
                 /* feed watchdog to keep Talon's enabled */
                 CTRE.Phoenix.Watchdog.Feed();
@@ -77,26 +66,6 @@ namespace HERO_Motor_Application
             }
         }
 
-        /**
-         * If value is within 10% of center, clear it.
-         * @param value [out] floating point value to deadband.
-         */
-        static void Deadband(ref float value)
-        {
-            if (value < -0.10)
-            {
-                /* outside of deadband */
-            }
-            else if (value > +0.10)
-            {
-                /* outside of deadband */
-            }
-            else
-            {
-                /* within 10% so zero it */
-                value = 0;
-            }
-        }
 
         /**
          *  Gets the raw inputs of the controller.
@@ -123,37 +92,7 @@ namespace HERO_Motor_Application
         /**
          * send cmd to motors and drives robot
          */
-        static void drive()
-        {
 
-            Deadband(ref leftJoystickX);
-            
-            float motorCmd = leftJoystickX;
-            
-            frontLeftMotor.Set(ControlMode.PercentOutput, motorCmd);
-
-        }
-
-        static void tankDrive()
-        {
-           Deadband(ref leftJoystickY);
-           Deadband(ref rightJoystickY);
-           
-           float leftSpeed = leftJoystickY;
-           float rightSpeed = rightJoystickY;
-           
-           frontLeftMotor.Set(ControlMode.PercentOutput, leftSpeed);
-           frontRightMotor.Set(ControlMode.PercentOutput, rightSpeed);
-           //Debug.Print("Left Speed: " + leftSpeed.ToString());
-           //Debug.Print("Right Speed: " + rightSpeed.ToString());
-           
-
-        }
-
-        static void arcadeDrive()
-        {
-
-        }
 
         static void printCtrl()
         {
@@ -176,12 +115,11 @@ namespace HERO_Motor_Application
             Debug.Print("GOES IN");
             if (xButton == true)
             {
-                backLeftMotor.Set(ControlMode.PercentOutput, 0.5);
+                driveTrain.move( (float) 0.5, driveTrain.backLeftMotor);
             }
             else
             {
-
-                backLeftMotor.Set(ControlMode.PercentOutput, 0);
+                driveTrain.move(0, driveTrain.backLeftMotor);
             }
         }
 
