@@ -50,6 +50,16 @@ namespace HERO_Motor_Application
             {
                 // get new controller inputs
                 getCtrlInputs();
+                if( xButton == true)
+                {
+                    backLeftMotor.Set(ControlMode.PercentOutput,0.5);
+                }
+                else 
+                {
+
+                    backLeftMotor.Set(ControlMode.PercentOutput, 0);
+                }
+                
                 // Drive/ Send Cmd to motors
                 tankDrive();
 
