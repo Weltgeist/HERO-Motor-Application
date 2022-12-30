@@ -1,7 +1,7 @@
 using CTRE.Phoenix;
 using CTRE.Phoenix.Controller;
 using CTRE.Phoenix.Tasking;
-using HERO_Motor_Application.Extended;
+using HERO_Motor_Application.Extendeds;
 using HERO_Motor_Application.Subsystems;
 
 namespace HERO_Motor_Application.Commands
