@@ -3,7 +3,8 @@ using CTRE.Phoenix.Controller;
 using CTRE.Phoenix.MotorControl;
 using CTRE.Phoenix.MotorControl.CAN;
 using CTRE.Phoenix.Tasking;
-using HERO_Motor_Application.Extended;
+using HERO_Motor_Application.Commands;
+using HERO_Motor_Application.Extendeds;
 using HERO_Motor_Application.Subsystems;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
@@ -37,6 +38,16 @@ namespace HERO_Motor_Application
 
         static DriveTrain driveTrain;
 
+        // Commands
+        static DriveWithController driveWithController;
+        static FeedCTREWatchDog feedCTREWatchdog;
+
+        // Grouped Commands
+        static SequentialScheduler defaultCommand;
+
+        // Threads
+        static PeriodicThread pThread;
+
         public static void Main()
         {
             // Setting as a Xinput Device.
@@ -48,22 +59,29 @@ namespace HERO_Motor_Application
             // Subsystems
             driveTrain = new DriveTrain();
 
+            // Commands
+            driveWithController = new DriveWithController(driveTrain, controller);
+            feedCTREWatchdog = new FeedCTREWatchDog();
+
+            // Threads
+            pThread = new PeriodicThread(20, driveWithController, driveWithController);
+
             /* loop forever */
-            while (true)
-            {
-                // get new controller inputs
-                getCtrlInputs();
-
-                xButtonM.ButtonPress(1, controller.GetButton(LogictechMapping.e1Button));
-
-                // Drive/ Send Cmd to motors
-                driveTrain.tankDrive(leftJoystickY,rightJoystickY);
-
-                /* feed watchdog to keep Talon's enabled */
-                CTRE.Phoenix.Watchdog.Feed();
-                /* wait a bit */
-                System.Threading.Thread.Sleep(20);
-            }
+            //while (true)
+            //{
+            //    // get new controller inputs
+            //    getCtrlInputs();
+            //
+            //    xButtonM.ButtonPress(1, controller.GetButton(LogictechMapping.e1Button));
+            //
+            //    // Drive/ Send Cmd to motors
+            //    driveTrain.tankDrive(leftJoystickY,rightJoystickY);
+            //
+            //    
+            //    CTRE.Phoenix.Watchdog.Feed();
+            //    /* wait a bit */
+            //    System.Threading.Thread.Sleep(20);
+            //}
         }
 
 
