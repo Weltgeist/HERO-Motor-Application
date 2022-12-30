@@ -46,7 +46,9 @@ namespace HERO_Motor_Application
         static SequentialScheduler defaultCommand;
 
         // Threads
-        static PeriodicThread pThread;
+        static PeriodicThread pThreadDriving;
+        static PeriodicThread pThreadDefault;
+        static PeriodicThread pThreadButtonClick;
 
         public static void Main()
         {
@@ -63,8 +65,19 @@ namespace HERO_Motor_Application
             driveWithController = new DriveWithController(driveTrain, controller);
             feedCTREWatchdog = new FeedCTREWatchDog();
 
+            // Grouped Commands
+            //defaultCommand = new SequentialScheduler(5);
+            //defaultCommand.Add(feedCTREWatchdog);
+            //defaultCommand.Add(driveWithController);
+            //defaultCommand.Start();
+
             // Threads
-            pThread = new PeriodicThread(20, driveWithController, driveWithController);
+            pThreadDriving = new PeriodicThread(20, null, driveWithController);
+            pThreadDriving.Start();
+            pThreadDefault = new PeriodicThread(20, null, feedCTREWatchdog);
+            pThreadDefault.Start();
+            pThreadButtonClick = new PeriodicThread(20, xButtonM, null);
+            pThreadButtonClick.Start();
 
             /* loop forever */
             //while (true)
@@ -133,11 +146,15 @@ namespace HERO_Motor_Application
             Debug.Print("GOES IN");
             if (xButton == true)
             {
+                Debug.Print("START BUTTON ACTION");
                 driveTrain.move( (float) 0.5, driveTrain.backLeftMotor);
+                xButtonM.IsDone();
             }
             else
             {
+                Debug.Print("EXITING BUTTON ACTION");
                 driveTrain.move(0, driveTrain.backLeftMotor);
+                xButtonM.IsDone();
             }
         }
 
