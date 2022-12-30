@@ -37,6 +37,7 @@ namespace HERO_Motor_Application
         // Subsystems
 
         static DriveTrain driveTrain;
+        static GenericActuator genericActuator;
 
         // Commands
         static DriveWithController driveWithController;
@@ -49,6 +50,7 @@ namespace HERO_Motor_Application
         static PeriodicThread pThreadDriving;
         static PeriodicThread pThreadDefault;
         static PeriodicThread pThreadButtonClick;
+        static PeriodicThread pThreadrunMotor;
 
         public static void Main()
         {
@@ -56,10 +58,11 @@ namespace HERO_Motor_Application
             //UsbHostDevice.GetInstance(0).SetSelectableXInputFilter(UsbHostDevice.SelectableXInputFilter.XInputDevices);
 
 
-            xButtonM = new ButtonMonitor(controller, 1, (idx,isDown) => driveMotor(idx, isDown));
+            xButtonM = new ButtonMonitor(controller, 1, (idx, isDown) => createRunMotorThread(idx, isDown));
 
             // Subsystems
             driveTrain = new DriveTrain();
+            genericActuator = new GenericActuator(Constants.backLeftMotorID);
 
             // Commands
             driveWithController = new DriveWithController(driveTrain, controller);
@@ -71,32 +74,47 @@ namespace HERO_Motor_Application
             //defaultCommand.Add(driveWithController);
             //defaultCommand.Start();
 
-            // Threads
-            pThreadDriving = new PeriodicThread(20, null, driveWithController);
-            pThreadDriving.Start();
-            pThreadDefault = new PeriodicThread(20, null, feedCTREWatchdog);
-            pThreadDefault.Start();
-            pThreadButtonClick = new PeriodicThread(20, xButtonM, null);
-            pThreadButtonClick.Start();
+            // Using Threads & Command Based Implementation
+            usingThread();
 
-            /* loop forever */
-            //while (true)
-            //{
-            //    // get new controller inputs
-            //    getCtrlInputs();
-            //
-            //    xButtonM.ButtonPress(1, controller.GetButton(LogictechMapping.e1Button));
-            //
-            //    // Drive/ Send Cmd to motors
-            //    driveTrain.tankDrive(leftJoystickY,rightJoystickY);
-            //
-            //    
-            //    CTRE.Phoenix.Watchdog.Feed();
-            //    /* wait a bit */
-            //    System.Threading.Thread.Sleep(20);
-            //}
+            // Using Loop & Time based implementation
+            //customLoop();
+
         }
 
+        public static void usingThread()
+        {
+
+            // Threads
+            //pThreadDriving = new PeriodicThread(20, null, driveWithController);
+            //pThreadDriving.Start();
+            pThreadDefault = new PeriodicThread(20, null, feedCTREWatchdog);
+            pThreadDefault.Start();
+            pThreadButtonClick = new PeriodicThread(20, null, xButtonM);
+            pThreadButtonClick.Start();
+
+        }
+
+
+        public static void customLoop()
+        {
+            /* loop forever */
+            while (true)
+            {
+                // get new controller inputs
+                getCtrlInputs();
+            
+                xButtonM.ButtonPress(1, controller.GetButton(LogictechMapping.e1Button));
+            
+                // Drive/ Send Cmd to motors
+                driveTrain.tankDrive(leftJoystickY,rightJoystickY);
+            
+                
+                CTRE.Phoenix.Watchdog.Feed();
+                /* wait a bit */
+                System.Threading.Thread.Sleep(20);
+            }
+        }
 
         /**
          *  Gets the raw inputs of the controller.
@@ -104,14 +122,14 @@ namespace HERO_Motor_Application
         static void getCtrlInputs()
         {
             // Get Joysticks
-            leftJoystickX = controller.GetAxis(LogictechMapping.leftJoystickX); 
-            leftJoystickY = -1 * controller.GetAxis(LogictechMapping.leftJoystickY); 
-            rightJoystickX = controller.GetAxis(LogictechMapping.rightJoystickX); 
-            rightJoystickY = -1 * controller.GetAxis(LogictechMapping.rightJoystickY);  
-            
-            
+            leftJoystickX = controller.GetAxis(LogictechMapping.leftJoystickX);
+            leftJoystickY = -1 * controller.GetAxis(LogictechMapping.leftJoystickY);
+            rightJoystickX = controller.GetAxis(LogictechMapping.rightJoystickX);
+            rightJoystickY = -1 * controller.GetAxis(LogictechMapping.rightJoystickY);
+
+
             // Get Buttons
-            xButton = controller.GetButton(LogictechMapping.e1Button); 
+            xButton = controller.GetButton(LogictechMapping.e1Button);
             yButton = controller.GetButton(LogictechMapping.e4Button);
             aButton = controller.GetButton(LogictechMapping.e2Button);
             bButton = controller.GetButton(LogictechMapping.e3Button);
@@ -128,39 +146,60 @@ namespace HERO_Motor_Application
         static void printCtrl()
         {
 
-            Debug.Print("Test Connection:"+ (controller.GetConnectionStatus() == UsbDeviceConnection.Connected).ToString());
+            Debug.Print("Test Connection:" + (controller.GetConnectionStatus() == UsbDeviceConnection.Connected).ToString());
 
             for (uint i = 0; i < 11; i++)
             {
                 Debug.Print("Axis #" + i.ToString() + ":" + controller.GetAxis(i).ToString());
             }
-            
+
             for (uint i = 1; i < 21; i++)
             {
                 Debug.Print("Button #" + i.ToString() + ":" + controller.GetButton(i).ToString());
             }
         }
 
-        static void driveMotor( int idx,bool xButton)
+        static void driveMotor(int idx, bool xButton)
         {
             Debug.Print("GOES IN");
+            Debug.Print(idx.ToString());
+            Debug.Print(xButton.ToString());
             if (xButton == true)
             {
                 Debug.Print("START BUTTON ACTION");
-                driveTrain.move( (float) 0.5, driveTrain.backLeftMotor);
-                xButtonM.IsDone();
+                genericActuator.move((float)0.5);
             }
             else
             {
                 Debug.Print("EXITING BUTTON ACTION");
-                driveTrain.move(0, driveTrain.backLeftMotor);
+                genericActuator.move(0);
                 xButtonM.IsDone();
             }
         }
 
 
+        static void createRunMotorThread(int idx, bool xButton)
+        {
+            Debug.Print("GOES IN createRunMotorThread");
+            Debug.Print(idx.ToString());
+            Debug.Print(xButton.ToString());
 
+
+            if (xButton == true)
+            {
+                Debug.Print("START BUTTON ACTION");
+                pThreadrunMotor = new PeriodicThread(20, null, new RunMotorClick(genericActuator,controller));
+                pThreadrunMotor.Start();
+            }
+            else
+            {
+                Debug.Print("EXITING BUTTON ACTION");
+                // genericActuator.move(0);
+                // xButtonM.IsDone();
+            }
+        }
+
+   
     }
-
 
 }
