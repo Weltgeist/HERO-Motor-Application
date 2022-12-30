@@ -1,6 +1,6 @@
 using CTRE.Phoenix.MotorControl;
 using CTRE.Phoenix.MotorControl.CAN;
-using HERO_Motor_Application.Extended;
+using HERO_Motor_Application.Extendeds;
 
 namespace HERO_Motor_Application.Subsystems
 {
