@@ -1,5 +1,5 @@
 
-namespace HERO_Motor_Application.Extended
+namespace HERO_Motor_Application.Extendeds
 {
     public static class Constants
     {

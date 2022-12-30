@@ -36,7 +36,7 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Commands\DriveWithController.cs" />
-    <Compile Include="Extended.cs" />
+    <Compile Include="Commands\FeedCTREWatchDog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Subsystems\DriveTrain.cs" />
