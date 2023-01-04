@@ -42,9 +42,11 @@ namespace HERO_Motor_Application
         // Commands
         static DriveWithController driveWithController;
         static FeedCTREWatchDog feedCTREWatchdog;
+        static RunMotorClick runMotorClick;
 
         // Grouped Commands
-        static SequentialScheduler defaultCommand;
+        //static SequentialSchedulerCust defaultCommand;
+        static ConcurrentSchedulerCust defaultCommand;
 
         // Threads
         static PeriodicThread pThreadDriving;
@@ -58,7 +60,7 @@ namespace HERO_Motor_Application
             //UsbHostDevice.GetInstance(0).SetSelectableXInputFilter(UsbHostDevice.SelectableXInputFilter.XInputDevices);
 
 
-            xButtonM = new ButtonMonitor(controller, 1, (idx, isDown) => createRunMotorThread(idx, isDown));
+            xButtonM = new ButtonMonitor(controller, 1, (idx, isDown) => createRunMotorCtrlThread(idx, isDown));
 
             // Subsystems
             driveTrain = new DriveTrain();
@@ -67,18 +69,26 @@ namespace HERO_Motor_Application
             // Commands
             driveWithController = new DriveWithController(driveTrain, controller);
             feedCTREWatchdog = new FeedCTREWatchDog();
+            runMotorClick = new RunMotorClick(genericActuator, controller);
 
             // Grouped Commands
-            //defaultCommand = new SequentialScheduler(5);
-            //defaultCommand.Add(feedCTREWatchdog);
-            //defaultCommand.Add(driveWithController);
+            //defaultCommand = new SequentialSchedulerCust(20);
+            defaultCommand = new ConcurrentSchedulerCust(20);
+            defaultCommand.Add(feedCTREWatchdog);
+            defaultCommand.Add(driveWithController);
+            defaultCommand.Add(xButtonM);
             //defaultCommand.Start();
+            defaultCommand.Start(feedCTREWatchdog);
 
             // Using Threads & Command Based Implementation
-            usingThread();
+            //usingThread();
 
             // Using Loop & Time based implementation
             //customLoop();
+
+
+            pThreadDriving = new PeriodicThread(20, null, defaultCommand);
+            pThreadDriving.Start();
 
         }
 
@@ -86,8 +96,8 @@ namespace HERO_Motor_Application
         {
 
             // Threads
-            //pThreadDriving = new PeriodicThread(20, null, driveWithController);
-            //pThreadDriving.Start();
+            pThreadDriving = new PeriodicThread(20, null, driveWithController);
+            pThreadDriving.Start();
             pThreadDefault = new PeriodicThread(20, null, feedCTREWatchdog);
             pThreadDefault.Start();
             pThreadButtonClick = new PeriodicThread(20, null, xButtonM);
@@ -177,7 +187,26 @@ namespace HERO_Motor_Application
             }
         }
 
+        static void createRunMotorCtrlThread(int idx, bool xButton)
+        {
+            Debug.Print("GOES IN createRunMotorCtrlThread");
+            Debug.Print(idx.ToString());
+            Debug.Print(xButton.ToString());
 
+
+            if (xButton == true)
+            {
+                Debug.Print("START BUTTON ACTION");
+
+                defaultCommand.Add(runMotorClick);
+            }
+            else
+            {
+                Debug.Print("EXITING BUTTON ACTION");
+                // genericActuator.move(0);
+                // xButtonM.IsDone();
+            }
+        }
         static void createRunMotorThread(int idx, bool xButton)
         {
             Debug.Print("GOES IN createRunMotorThread");
