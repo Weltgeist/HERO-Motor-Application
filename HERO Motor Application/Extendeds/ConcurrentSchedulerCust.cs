@@ -1,26 +1,34 @@
 using System;
 using Microsoft.SPOT;
+using CTRE.Phoenix;
+using CTRE.Phoenix.Tasking;
 
-namespace CTRE.Phoenix.Tasking
+namespace HERO_Motor_Application.Extendeds
 {
-    public class ConcurrentScheduler : IProcessable, ILoopable
+    public class ConcurrentSchedulerCust : IProcessable, ILoopable
     {
         System.Collections.ArrayList _loops = new System.Collections.ArrayList();
         System.Collections.ArrayList _enabs = new System.Collections.ArrayList();
         int _periodMs;
         PeriodicTimeout _timeout;
 
-        public ConcurrentScheduler(int periodMs)
+        public ConcurrentSchedulerCust(int periodMs)
         {
             _periodMs = periodMs;
             _timeout = new PeriodicTimeout(periodMs);
         }
         public void Add(ILoopable newLoop, bool bEnabled = true)
         {
+            int index = 0;
             foreach (var loop in _loops)
             {
                 if (loop == newLoop)
+                {
+                    _enabs[index] = true;
                     return; /* already here */
+
+                }
+                index++;
             }
             _loops.Add(newLoop);
             _enabs.Add(bEnabled);
@@ -98,6 +106,12 @@ namespace CTRE.Phoenix.Tasking
                 {
                     ILoopable lp = (ILoopable)_loops[i];
                     bool en = (bool)_enabs[i];
+
+                    if (lp.IsDone())
+                    {
+                        Stop(lp);
+                        en = false;
+                    }
 
                     if (en)
                     {
