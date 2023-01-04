@@ -38,6 +38,7 @@
     <Compile Include="Commands\DriveWithController.cs" />
     <Compile Include="Commands\FeedCTREWatchDog.cs" />
     <Compile Include="Commands\RunMotorClick.cs" />
+    <Compile Include="Extendeds\ConcurrentSchedulerCust.cs" />
     <Compile Include="Extendeds\Extended.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
