@@ -26,6 +26,8 @@ namespace HERO_Motor_Application.Extendeds
         public const uint e6Button = 6; // RBButton
         public const uint e7Button = 7; // LTButton
         public const uint e8Button = 8; // RTButton
+        public const uint e8Button = 9; // Start
+        public const uint e8Button = 10; // Settings
 
     }
 
