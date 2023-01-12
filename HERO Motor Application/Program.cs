@@ -54,6 +54,10 @@ namespace HERO_Motor_Application
         static PeriodicThread pThreadButtonClick;
         static PeriodicThread pThreadrunMotor;
 
+        // State Machines
+
+        static RobotState robotState;
+
         public static void Main()
         {
             // Setting as a Xinput Device.
@@ -78,18 +82,9 @@ namespace HERO_Motor_Application
             defaultCommand.Add(driveWithController);
             defaultCommand.Add(xButtonM);
             //defaultCommand.Start();
-            defaultCommand.Start(feedCTREWatchdog);
 
-            // Using Threads & Command Based Implementation
-            //usingThread();
-
-            // Using Loop & Time based implementation
-            //customLoop();
-
-
-            pThreadDriving = new PeriodicThread(20, null, defaultCommand);
-            pThreadDriving.Start();
-
+            // State Machine
+            robotState = new RobotState(controller);
         }
 
         public static void usingThread()
