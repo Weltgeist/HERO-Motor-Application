@@ -70,10 +70,14 @@ namespace HERO_Motor_Application
             defaultCommand.Add(feedCTREWatchdog);
             defaultCommand.Add(driveWithController);
             defaultCommand.Add(xButtonM);
-            //defaultCommand.Start();
+            defaultCommand.Start(feedCTREWatchdog);
+            pThreadDefault = new PeriodicThread(20, null, defaultCommand);
+            pThreadDefault.Start();
 
             // State Machine
             robotState = new RobotState(controller);
+            pThreadDriving = new PeriodicThread(20, robotState, null);
+            pThreadDriving.Start();
 
         }
 
